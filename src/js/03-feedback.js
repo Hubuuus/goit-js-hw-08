@@ -1,38 +1,39 @@
+import { throttle } from 'lodash';
+let inputForm = document.querySelector('.feedback-form');
+let emailInput = document.querySelector('input');
+let messageInput = document.querySelector('textarea');
 
-import { throttle } from "lodash";
-const emailInput = document.querySelector("input");
-const messageInput = document.querySelector("textarea");
-const data = {
-  email: '',
-  text: ''
-}
-const emailData = (event) => {
-  data.email = event.target.value;
-  localStorage.setItem("feedback-form-state", JSON.stringify(data));
-}
-emailInput.addEventListener("input", throttle((emailData),500))
+inputForm.addEventListener(
+  'input',
+  throttle(() => {
+    let dataInput = {
+      email: emailInput.value,
+      message: messageInput.value,
+    };
+    localStorage.setItem('feedback-form-state', JSON.stringify(dataInput));
+  }, 500)
+);
 
-const textData = (event) => {
-  data.text = event.target.value;
-  localStorage.setItem("feedback-form-state", JSON.stringify(data));
-}
-messageInput.addEventListener("input", throttle((textData), 500))
+let dataOutput = JSON.parse(localStorage.getItem('feedback-form-state'));
 
-const dataFromStorage = localStorage.getItem("feedback-form-state");
-const normalizedData = JSON.parse(dataFromStorage);
-if (normalizedData && (normalizedData.hasOwnProperty('email') === true || normalizedData.hasOwnProperty('text') === true)) {
-  if (normalizedData.email !== '' || normalizedData.text !== '') {
-    emailInput.value = normalizedData.email;
-    messageInput.value = normalizedData.text;
+if (
+  dataOutput &&
+  (dataOutput.hasOwnProperty('email') === true ||
+    dataOutput.hasOwnProperty('message') === true)
+) {
+  if (dataOutput.email !== '' || dataOutput.message !== '') {
+    emailInput.value = dataOutput.email;
+    messageInput.value = dataOutput.message;
   }
 } else {
   emailInput.value = '';
   messageInput.value = '';
 }
 
-const submitBtn = document.querySelector(".feedback-form");
-submitBtn.addEventListener("submit", (event) => {
+inputForm.addEventListener('submit', event => {
   event.preventDefault();
-  console.log(data);
-  localStorage.removeItem("feedback-form-state");
-})
+  console.log(localStorage.getItem('feedback-form-state'));
+  emailInput.value = '';
+  messageInput.value = '';
+  localStorage.removeItem('feedback-form-state');
+});
